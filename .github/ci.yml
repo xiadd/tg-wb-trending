@@ -1,0 +1,30 @@
+name: schedule
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      TZ: Asia/Shanghai
+
+    steps:
+      - name: Checkout Git Source
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: npm i -g npminstall && npminstall
+        env:
+          token: 684112250:AAEXwWuXJV02QQTjgMoGBSfPMxEp1HeP5Sc
+          channel_id: -1001384658469
+
+      - name: Run Command
+        run: npm start

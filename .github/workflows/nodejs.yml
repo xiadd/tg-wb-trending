@@ -1,6 +1,10 @@
 name: schedule
 
 on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
   schedule:
     - cron: "*/1 * * * *"
 
@@ -21,7 +25,7 @@ jobs:
           node-version: '15'
 
       - name: Install Dependencies
-        run: npm install
+        run: yarn install
         
       - name: Run Command
-        run: npm start
+        run: yarn start

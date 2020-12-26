@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "node-telegram-bot-api": "^0.51.0"
+    "telegraf": "^3.38.0"
   }
 }

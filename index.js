@@ -5,6 +5,6 @@ const CHANNEL_ID = '-1001384658469'
 
 const bot = new TelegramBot(TOKEN, { polling: true })
 
-bot.sendMessage(CHANNEL_ID, 'HELLO WORLD').then(() => {
+bot.sendMessage(CHANNEL_ID, '你好啊👋').then(() => {
   process.exit(0)
 })

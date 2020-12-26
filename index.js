@@ -13,8 +13,7 @@ async function bootstrap () {
     const items = data.data.cards[0]?.card_group
     if (items) {
       const text = items.splice(1, 20).map(o => `[${o.desc}](${o.scheme})`)
-      console.log(text)
-      await bot.sendMessage(CHANNEL_ID, text.join('\n'), {
+      await bot.sendMessage(CHANNEL_ID, new Date().toLocaleString() + '的微博热搜\n' + text.join('\n'), {
         parse_mode: 'Markdown',
         disable_web_page_preview: true
       })

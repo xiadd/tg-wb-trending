@@ -42,7 +42,8 @@ async function bootstrap () {
         }
         return `🔥 [${o.desc}](${o.scheme})`
       })
-      await bot.telegram.sendMessage(CHANNEL_ID, new Date().toLocaleString() + '的微博热搜\n' + text.join('\n'), {
+      text.unshift(`${new Date().toLocaleString()} 的微博热搜`)
+      await bot.telegram.sendMessage(CHANNEL_ID, text.join('\n'), {
         parse_mode: 'Markdown',
         disable_web_page_preview: true
       })

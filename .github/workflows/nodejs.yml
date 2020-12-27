@@ -32,6 +32,6 @@ jobs:
           git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git pull --rebase
           yarn start
-          git add .
-          git commit -m "实时更新微博热搜"
+          git add -A
+          git diff-index --quiet HEAD || git commit -m '实时更新微博热搜'
           git push

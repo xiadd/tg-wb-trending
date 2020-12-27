@@ -24,4 +24,12 @@ jobs:
         run: yarn install
         
       - name: Run Command
-        run: yarn start
+        run: |
+          git config --local user.email "xiadd0102@gmail.com"
+          git config --local user.name "xiadd"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git pull --rebase
+          yarn start
+          git add .
+          git commit -m "实时更新微博热搜"
+          git push

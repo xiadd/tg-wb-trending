@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "dayjs": "^1.9.8",
+    "lodash": "^4.17.20",
     "telegraf": "^3.38.0"
   }
 }

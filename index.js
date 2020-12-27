@@ -25,7 +25,7 @@ async function saveRawJson (data) {
   } catch (err) {
     // file not exsit
   }
-  const allHots = _.merge(words, wordsAlreadyDownload)
+  const allHots = _.uniqBy(_.concat(words, wordsAlreadyDownload), 'title')
   await fs.writeFile(fullPath, JSON.stringify(allHots))
 }
 

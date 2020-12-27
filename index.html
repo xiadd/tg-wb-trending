@@ -4,9 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>微博热搜站点</title>
+  <style>
+    html, body {
+      margin: 0;
+      color: #2c3e50;
+    }
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container p {
+      margin: 5px;
+    }
+  </style>
 </head>
 <body>
-  <h1>站点建设中</h1>
-  <p>每天自动抓取微博热搜归档，并且每小时发送热点消息到tg频道</p>
+  <div class="container">
+    <h1>微博热搜站点</h1>
+    <p>使用Github actions每小时自动抓取微博热搜并归档</p>
+    <p>利用Github page生成网站 <a href="http://weibo.juhe.im/">网站</a></p>
+    <p>并且自动推送到telegram 频道 <a href="https://t.me/weibo_hots">微博实时热搜</a></p>
+  </div>
 </body>
 </html>

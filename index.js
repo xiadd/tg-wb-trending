@@ -12,7 +12,7 @@ const bot = new Telegraf(TOKEN)
 
 async function saveRawJson (data) {
   const date = dayjs().format('YYYY-MM-DD')
-  const fullPath = `./raw/${date}.json`
+  const fullPath = `./api/${date}.json`
   const words = data.map(o => ({
     title: o.desc,
     url: o.scheme,

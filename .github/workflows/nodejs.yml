@@ -35,3 +35,5 @@ jobs:
           git add -A
           git diff-index --quiet HEAD || git commit -m '实时更新微博热搜'
           git push
+        env:
+          TOKEN: ${{ secrets.TOKEN }}

@@ -37,3 +37,4 @@ jobs:
           git push
         env:
           TOKEN: ${{ secrets.TOKEN }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}

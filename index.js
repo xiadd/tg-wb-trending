@@ -1,12 +1,14 @@
 const fs = require('fs/promises')
 const dayjs = require('dayjs')
+const cheerio = require('cheerio')
 const _ = require('lodash')
 const { Telegraf } = require('telegraf')
 const axios = require('axios')
 
 const TOKEN = process.env.TOKEN
-const CHANNEL_ID = '-1001384658469'
+const CHANNEL_ID = process.env.CHANNEL_ID
 const TRENDING_URL = 'https://m.weibo.cn/api/container/getIndex?containerid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot'
+const TRENDING_DETAIL_URL = 'https://m.s.weibo.com/topic/detail?q='
 
 const bot = new Telegraf(TOKEN)
 
@@ -15,6 +17,8 @@ async function saveRawJson (data) {
   const fullPath = `./api/${date}.json`
   const words = data.map(o => ({
     title: o.desc,
+    category: o.category,
+    description: o.description,
     url: o.scheme,
     hot: o.desc_extr,
     ads: !!o.promotion
@@ -42,11 +46,20 @@ async function sendTgMessage(data) {
     }
     return `🔥 [${o.desc}](${o.scheme}) ${(o.desc_extr / 10000).toFixed(2)} 万`
   })
-  text.unshift(`${new Date().toLocaleString()} 的微博热搜`)
+  text.unshift(`${dayjs().format('YYYY-MM-DD HH:MM:ss')} 的微博热搜`)
   await bot.telegram.sendMessage(CHANNEL_ID, text.join('\n'), {
     parse_mode: 'Markdown',
     disable_web_page_preview: true
   })
+}
+
+async function fetchTrendingDetail (title) {
+  const { data } = await axios.get(`${TRENDING_DETAIL_URL}${title}`)
+  const $ = cheerio.load(data)
+  return {
+    category: $('#pl_topicband dl>dd').first().text(),
+    desc: $('#pl_topicband dl>dd').last().text()
+  }
 }
 
 async function bootstrap () {
@@ -54,6 +67,11 @@ async function bootstrap () {
   if (data.ok === 1) {
     const items = data.data.cards[0]?.card_group
     if (items) {
+      for (let item of items) {
+        const { category, desc } = await fetchTrendingDetail(encodeURIComponent(item.desc))
+        item.category = category
+        item.description = desc
+      }
       await saveRawJson(items)
       await sendTgMessage(items)
     }
@@ -61,4 +79,4 @@ async function bootstrap () {
   process.exit(0)
 }
 
-bootstrap()
+bootstrap() 

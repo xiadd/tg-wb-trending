@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>微博热搜站点</title>
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
   <style>
     html, body {
       margin: 0;
@@ -22,11 +23,57 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>微博热搜站点</h1>
-    <p>使用Github actions每小时自动抓取微博热搜并归档</p>
-    <p>利用Github page生成网站 <a href="http://weibo.juhe.im/">网站</a></p>
-    <p>并且自动推送到telegram 频道 <a href="https://t.me/weibo_hots">微博实时热搜</a></p>
+  <div id="root">
+    <h2 class="text-center m-b-20 f00-light">微博热搜榜</h2>
+    <div class="container-xl clearfix">
+      <div class="col-4 float-left p-2" v-for="item in hots">
+        <div class="Box Box--condensed">
+          <div class="Box-header d-flex flex-items-center">
+            <h3 class="Box-title overflow-hidden flex-auto">
+              <a :href="item.url" target="_blank" class="text-gray-dark">{{ item.title }}</a>
+              <span class="Counter Counter--gray-dark ml-1">
+                {{ item.category }}
+              </span>
+
+              <span v-show="item.ads" class="IssueLabel bg-red text-white ml-1">
+                {{ item.ads ? 'ad' : '' }}
+              </span>
+            </h3>
+            <span class="text-mono text-small text-orange-light">
+              {{ item.hot }}
+            </span>
+          </div>
+          <div class="Box-body">
+            <p class="text-small no-wrap" style="overflow: hidden; text-overflow: ellipsis;">{{ item.description || '暂无简介' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+  <script src="https://unpkg.com/dayjs"></script>
+  <script src="https://unpkg.com/vue@next"></script>
+  <script>
+    const RenderHtmlApp = {
+      data() {
+        return {
+          hots: []
+        }
+      },
+      mounted() {
+        this.fetchTodayHots()
+      },
+      methods: {
+        async fetchTodayHots() {
+          const res = await fetch(`https://weibo.juhe.im/api/${dayjs().format('YYYY-MM-DD')}.json`)
+          const json = await res.json()
+          this.hots = json
+        },
+        openOrigin(item){
+          window.open(item.url)
+        }
+      }
+    }
+    Vue.createApp(RenderHtmlApp).mount('#root')
+  </script>
 </body>
 </html>

@@ -1,14 +1,17 @@
-const fs = require('fs/promises')
-const dayjs = require('dayjs')
-const cheerio = require('cheerio')
-const _ = require('lodash')
-const { Telegraf } = require('telegraf')
-const axios = require('axios')
+import fs from 'fs/promises'
+import util from 'util'
+import dayjs from 'dayjs'
+import cheerio from 'cheerio'
+import _ from 'lodash'
+import telegraf from 'telegraf'
+import axios from 'axios'
+
+const { Telegraf } = telegraf
 
 const TOKEN = process.env.TOKEN
 const CHANNEL_ID = process.env.CHANNEL_ID
 const TRENDING_URL = 'https://m.weibo.cn/api/container/getIndex?containerid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot'
-const TRENDING_DETAIL_URL = 'https://m.s.weibo.com/topic/detail?q='
+const TRENDING_DETAIL_URL = 'https://m.s.weibo.com/topic/detail?q=%s'
 
 const bot = new Telegraf(TOKEN)
 
@@ -46,7 +49,7 @@ async function sendTgMessage(data) {
     }
     return `🔥 [${o.desc}](${o.scheme}) ${(o.desc_extr / 10000).toFixed(2)} 万`
   })
-  text.unshift(`${dayjs().format('YYYY-MM-DD HH:MM:ss')} 的微博热搜`)
+  text.unshift(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 的微博热搜`)
   await bot.telegram.sendMessage(CHANNEL_ID, text.join('\n'), {
     parse_mode: 'Markdown',
     disable_web_page_preview: true
@@ -54,7 +57,7 @@ async function sendTgMessage(data) {
 }
 
 async function fetchTrendingDetail (title) {
-  const { data } = await axios.get(`${TRENDING_DETAIL_URL}${title}`)
+  const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title))
   const $ = cheerio.load(data)
   return {
     category: $('#pl_topicband dl>dd').first().text(),

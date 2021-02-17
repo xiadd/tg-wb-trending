@@ -57,11 +57,15 @@ async function sendTgMessage(data) {
 }
 
 async function fetchTrendingDetail (title) {
-  const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title))
-  const $ = cheerio.load(data)
-  return {
-    category: $('#pl_topicband dl>dd').first().text(),
-    desc: $('#pl_topicband dl>dd').last().text()
+  try {
+    const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title))
+    const $ = cheerio.load(data)
+    return {
+      category: $('#pl_topicband dl>dd').first().text(),
+      desc: $('#pl_topicband dl>dd').last().text()
+    }
+  } catch {
+    return {}
   }
 }
 
@@ -72,8 +76,8 @@ async function bootstrap () {
     if (items) {
       for (let item of items) {
         const { category, desc } = await fetchTrendingDetail(encodeURIComponent(item.desc))
-        item.category = category
-        item.description = desc
+        item.category = category || item.category
+        item.description = desc || item.description
       }
       await saveRawJson(items)
       await sendTgMessage(items)

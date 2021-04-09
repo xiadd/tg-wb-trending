@@ -32,7 +32,7 @@ export default function Hots() {
     <div className="hot-container">
       <section className="page-header bg-dark">
         <h1 className="hot-date font-bold">{_date}</h1>
-        <h5 className="hot-desc">微博热搜</h5>
+        <h5 className="hot-desc">共 <b>{hots.length || 0}</b> 条微博热搜</h5>
         {!dayjs(_date).subtract(1, 'd').isBefore(dayjs('2020-12-27')) && <Link
           to={`${match.url}?date=${dayjs(_date).subtract(1, 'd').format('YYYY-MM-DD')}`}
           className="btn btn-secondary fw-bold border-white bg-white text-dark mt-2"
@@ -61,6 +61,7 @@ export default function Hots() {
                   {item.title}
                 </a>
                 <span className={`badge bg-secondary`} style={{ verticalAlign: 'text-bottom', marginLeft: 5 }}>{item.category}</span>
+                {item.hot && <mark className="text-muted" style={{ marginLeft: 5 }}>热度: {item.hot}</mark>}
               </p>
               <p className="text-secondary" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{item.description || '暂无描述'}</p>
             </li>

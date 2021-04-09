@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useRouteMatch } from 'react-router-dom'
 import dayjs from 'dayjs'
+import _ from 'lodash'
 import "./index.css";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
-const URL = "https://cdn.jsdelivr.net/gh/xiadd/tg-wb-trending"
+const URL = "https://cdn.jsdelivr.net/gh/xiadd/tg-wb-trending@master"
 
 export default function Hots() {
   const query = useQuery()
@@ -45,6 +46,17 @@ export default function Hots() {
         >
           后一天
         </Link>}
+        <div className="mt-3">
+          {_.keys(_.countBy(hots, d => _.trim(d.category))).filter(item => item).map(item => (
+            <span
+              className="badge bg-light text-secondary"
+              style={{ verticalAlign: 'text-bottom', marginLeft: 5 }}
+              key={item}
+            >
+              {item} {_.countBy(hots, d => _.trim(d.category))[item]}
+            </span>
+          ))}
+        </div>
       </section>
       <div className="container mt-4">
         {loading
@@ -53,20 +65,21 @@ export default function Hots() {
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-          : <ul>
+          : <ol>
           {hots.map(item => (
             <li key={item.title} className="hot-item">
               <p className="fs-6">
                 <a href={item.url} target="_blank" rel="noopener noreferrer">
                   {item.title}
                 </a>
-                <span className={`badge bg-secondary`} style={{ verticalAlign: 'text-bottom', marginLeft: 5 }}>{item.category}</span>
+                <span className={`badge bg-secondary`} style={{ verticalAlign: 'text-bottom', marginLeft: 5 }}>{_.trim(item.category)}</span>
+                {item.ads && <span className={`badge bg-danger`} style={{ verticalAlign: 'text-bottom', marginLeft: 5 }}>推广</span>}
                 {item.hot && <mark className="text-muted" style={{ marginLeft: 5 }}>热度: {item.hot}</mark>}
               </p>
               <p className="text-secondary" style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{item.description || '暂无描述'}</p>
             </li>
           ))}
-        </ul>}
+        </ol>}
       </div>
     </div>
   );

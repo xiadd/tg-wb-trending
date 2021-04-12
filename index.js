@@ -40,14 +40,16 @@ async function saveRawJson (data) {
 
 async function sendTgMessage(data) {
   const ranks = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
-  const text = data.splice(1, 20).map((o, i) => {
+  const text = data.splice(1, 50).map((o, i) => {
+    const containerid = encodeURIComponent(new URL(o.scheme).searchParams.get('containerid'))
+    const url = `https://m.weibo.cn/search?containerid=${containerid}`
     if (o.promotion) {
-      return `💰 [${o.desc}](${o.scheme}) ${(o.desc_extr / 10000).toFixed(2)} 万`
+      return `💰 [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`
     }
     if (ranks[i]) {
-      return `${ranks[i]} [${o.desc}](${o.scheme}) ${(o.desc_extr / 10000).toFixed(2)} 万`
+      return `${ranks[i]} [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`
     }
-    return `🔥 [${o.desc}](${o.scheme}) ${(o.desc_extr / 10000).toFixed(2)} 万`
+    return `🔥 [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`
   })
   text.unshift(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 的微博热搜([查看更多](https://weibo.juhe.im/#/hots?date=${dayjs().format('YYYY-MM-DD')}))`)
   await bot.telegram.sendMessage(CHANNEL_ID, text.join('\n'), {

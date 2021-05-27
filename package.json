@@ -11,7 +11,7 @@
     "axios": "^0.21.1",
     "cheerio": "^1.0.0-rc.5",
     "dayjs": "^1.9.8",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "telegraf": "^3.38.0"
   },
   "devDependencies": {

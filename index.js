@@ -15,7 +15,7 @@ const TRENDING_DETAIL_URL = 'https://m.s.weibo.com/topic/detail?q=%s'
 
 const bot = new Telegraf(TOKEN)
 
-async function saveRawJson (data) {
+async function saveRawJson(data) {
   const date = dayjs().format('YYYY-MM-DD')
   const fullPath = `./api/${date}.json`
   const words = data.map(o => ({
@@ -58,7 +58,7 @@ async function sendTgMessage(data) {
   })
 }
 
-async function fetchTrendingDetail (title) {
+async function fetchTrendingDetail(title) {
   try {
     const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title))
     const $ = cheerio.load(data)
@@ -71,7 +71,7 @@ async function fetchTrendingDetail (title) {
   }
 }
 
-async function bootstrap () {
+async function bootstrap() {
   const { data } = await axios.get(TRENDING_URL)
   if (data.ok === 1) {
     const items = data.data.cards[0]?.card_group
@@ -88,4 +88,4 @@ async function bootstrap () {
   process.exit(0)
 }
 
-bootstrap() 
+bootstrap()

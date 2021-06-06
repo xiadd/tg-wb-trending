@@ -24,15 +24,18 @@ jobs:
         run: yarn install
         
       - name: Run Command
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "github-actions"
-          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git pull --rebase
-          yarn start
-          git add -A
-          git diff-index --quiet HEAD || git commit -m '实时更新微博热搜'
-          git push
+        run: yarn start
         env:
           TOKEN: ${{ secrets.TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+        
+      - name: Commit Files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "实时更新微博热搜" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

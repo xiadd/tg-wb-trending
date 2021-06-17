@@ -1,0 +1,19 @@
+name: deploy to github page
+
+on:
+  push:
+    branches: [master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      TZ: Asia/Shanghai
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2.3.1
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.6
+

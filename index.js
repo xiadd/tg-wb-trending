@@ -60,7 +60,7 @@ async function sendTgMessage(data) {
 
 async function fetchTrendingDetail(title) {
   try {
-    const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title))
+    const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title), { timeout: 60 * 1000 })
     const $ = cheerio.load(data)
     return {
       category: $('#pl_topicband dl>dd').first().text(),
@@ -72,7 +72,7 @@ async function fetchTrendingDetail(title) {
 }
 
 async function bootstrap() {
-  const { data } = await axios.get(TRENDING_URL)
+  const { data } = await axios.get(TRENDING_URL, { timeout: 60 * 1000 })
   if (data.ok === 1) {
     const items = data.data.cards[0]?.card_group
     if (items) {

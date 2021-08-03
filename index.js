@@ -40,7 +40,7 @@ async function saveRawJson(data) {
 
 async function sendTgMessage(data) {
   const ranks = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
-  const text = data.splice(1, 50).map((o, i) => {
+  const text = data.splice(1, 30).map((o, i) => {
     const containerid = encodeURIComponent(new URL(o.scheme).searchParams.get('containerid'))
     const url = `https://m.weibo.cn/search?containerid=${containerid}`
     if (o.promotion) {

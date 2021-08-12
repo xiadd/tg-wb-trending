@@ -1,7 +1,6 @@
 name: schedule
 
 on:
-  push
   schedule:
     - cron: "0 * * * *"
 

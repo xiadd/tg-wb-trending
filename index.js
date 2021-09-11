@@ -64,7 +64,7 @@ async function fetchTrendingDetail(title) {
     const $ = cheerio.load(data)
     return {
       category: $('#pl_topicband dl>dd').first().text(),
-      desc: $('#pl_topicband dl>dd').last().text()
+      desc: $('#pl_topicband dl:eq(1)').find('dd').last().text()
     }
   } catch {
     return {}

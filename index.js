@@ -40,7 +40,7 @@ async function saveRawJson(data) {
   await fs.writeFile(fullPath, JSON.stringify(allHots))
 }
 
-async function writeMDFile(data) {
+async function writeMDFile() {
   const date = dayjs().format('YYYY-MM-DD')
   const fullPath = `./raw/${date}.md`
   const jsonPath = `./api/${date}.json`

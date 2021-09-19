@@ -1,4 +1,4 @@
-import fs from 'fs/promises'
+import fs from 'fs-extra'
 import util from 'util'
 import dayjs from 'dayjs'
 import cheerio from 'cheerio'
@@ -14,6 +14,8 @@ const TRENDING_URL = 'https://m.weibo.cn/api/container/getIndex?containerid=1060
 const TRENDING_DETAIL_URL = 'https://m.s.weibo.com/topic/detail?q=%s'
 
 const bot = new Telegraf(TOKEN)
+
+let RETRY_TIME = 5
 
 async function saveRawJson(data) {
   const date = dayjs().format('YYYY-MM-DD')
@@ -38,6 +40,19 @@ async function saveRawJson(data) {
   await fs.writeFile(fullPath, JSON.stringify(allHots))
 }
 
+async function writeMDFile(data) {
+  const date = dayjs().format('YYYY-MM-DD')
+  const fullPath = `./raw/${date}.md`
+  const jsonPath = `./api/${date}.json`
+  const words = await fs.readJSON(jsonPath)
+  await fs.writeFile(fullPath, `# ${date} 微博热搜 \n`)
+  await fs.writeFile(fullPath, words.map(item => {
+    return `## [${item.title}](${item.url}) ${item.category && `\`${item.category?.trim()}\``} \n ${item.description?.trim() || '暂无描述'}`
+  }).join('\n'), {
+    flag: 'a'
+  })
+}
+
 async function sendTgMessage(data) {
   const ranks = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
   const text = data.splice(1, 30).map((o, i) => {
@@ -60,11 +75,11 @@ async function sendTgMessage(data) {
 
 async function fetchTrendingDetail(title) {
   try {
-    const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title), { timeout: 60 * 1000 })
+    const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title), { timeout: 10 * 1000 })
     const $ = cheerio.load(data)
     return {
       category: $('#pl_topicband dl>dd').first().text(),
-      desc: $('#pl_topicband dl:eq(1)').find('dd').last().text()
+      desc: $('#pl_topicband dl:eq(1)').find('dd:not(.host-row)').last().text()
     }
   } catch {
     return {}
@@ -72,17 +87,26 @@ async function fetchTrendingDetail(title) {
 }
 
 async function bootstrap() {
-  const { data } = await axios.get(TRENDING_URL, { timeout: 60 * 1000 })
-  if (data.ok === 1) {
-    const items = data.data.cards[0]?.card_group
-    if (items) {
-      for (let item of items) {
-        const { category, desc } = await fetchTrendingDetail(encodeURIComponent(item.desc))
-        item.category = category || item.category
-        item.description = desc || item.description
+  while (RETRY_TIME > 0) {
+    try {
+      const { data } = await axios.get(TRENDING_URL, { timeout: 60 * 1000 })
+      if (data.ok === 1) {
+        const items = data.data.cards[0]?.card_group
+        if (items) {
+          for (let item of items) {
+            const { category, desc } = await fetchTrendingDetail(encodeURIComponent(item.desc))
+            item.category = category || item.category
+            item.description = desc || item.description
+          }
+          await saveRawJson(items)
+          await writeMDFile()
+          await sendTgMessage(items)
+        }
       }
-      await saveRawJson(items)
-      await sendTgMessage(items)
+      RETRY_TIME = 0
+    } catch (err) {
+      console.log(err.message)
+      RETRY_TIME -= 1
     }
   }
   process.exit(0)

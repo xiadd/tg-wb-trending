@@ -42,7 +42,7 @@ async function saveRawJson(data) {
 
 async function writeMDFile() {
   const date = dayjs().format('YYYY-MM-DD')
-  const fullPath = `./raw/${date}.md`
+  const fullPath = `./archives/${date}.md`
   const jsonPath = `./api/${date}.json`
   const words = await fs.readJSON(jsonPath)
   await fs.writeFile(fullPath, `# ${date} 微博热搜 \n`)

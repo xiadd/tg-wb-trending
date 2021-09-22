@@ -47,7 +47,7 @@ async function writeMDFile() {
   const words = await fs.readJSON(jsonPath)
   await fs.writeFile(fullPath, `# ${date} 微博热搜 \n`)
   await fs.writeFile(fullPath, words.map(item => {
-    return `## [${item.title}](${item.url}) ${item.category ? `\`${item.category?.trim()}\`` : ''} \n ${item.description?.trim() || '暂无描述'}`
+    return `${index + 1}. [${item.title}](${item.url}) ${item.category ? `\`${item.category?.trim()}\`` : ''} \n`
   }).join('\n'), {
     flag: 'a'
   })

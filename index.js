@@ -46,7 +46,7 @@ async function writeMDFile() {
   const jsonPath = `./api/${date}.json`
   const words = await fs.readJSON(jsonPath)
   await fs.writeFile(fullPath, `# ${date} 微博热搜 \n`)
-  await fs.writeFile(fullPath, words.map(item => {
+  await fs.writeFile(fullPath, words.map((item, index) => {
     return `${index + 1}. [${item.title}](${item.url}) ${item.category ? `\`${item.category?.trim()}\`` : ''} \n`
   }).join('\n'), {
     flag: 'a'

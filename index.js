@@ -89,7 +89,7 @@ async function fetchTrendingDetail(title) {
 async function bootstrap() {
   while (RETRY_TIME > 0) {
     try {
-      const { data } = await axios.get(TRENDING_URL, { timeout: 60 * 1000 })
+      const { data } = await axios.get(TRENDING_URL, { timeout: 10 * 1000 })
       if (data.ok === 1) {
         const items = data.data.cards[0]?.card_group
         if (items) {

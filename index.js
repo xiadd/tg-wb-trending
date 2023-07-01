@@ -1,115 +1,137 @@
-import fs from 'fs-extra'
-import util from 'util'
-import dayjs from 'dayjs'
-import cheerio from 'cheerio'
-import _ from 'lodash'
-import telegraf from 'telegraf'
-import axios from 'axios'
+import fs from 'fs-extra';
+import util from 'util';
+import dayjs from 'dayjs';
+import * as cheerio from 'cheerio';
+import _ from 'lodash';
+import telegraf from 'telegraf';
 
-const { Telegraf } = telegraf
+const { Telegraf } = telegraf;
 
-const TOKEN = process.env.TOKEN
-const CHANNEL_ID = process.env.CHANNEL_ID
-const TRENDING_URL = 'https://m.weibo.cn/api/container/getIndex?containerid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot'
-const TRENDING_DETAIL_URL = 'https://m.s.weibo.com/topic/detail?q=%s'
+const TOKEN = process.env.TOKEN;
+const CHANNEL_ID = process.env.CHANNEL_ID;
+const TRENDING_URL =
+  'https://m.weibo.cn/api/container/getIndex?containerid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot';
+const TRENDING_DETAIL_URL = 'https://m.s.weibo.com/topic/detail?q=%s';
 
-const bot = new Telegraf(TOKEN)
+const bot = new Telegraf(TOKEN);
 
-let RETRY_TIME = 5
+let RETRY_TIME = 5;
 
 async function saveRawJson(data) {
-  const date = dayjs().format('YYYY-MM-DD')
-  const fullPath = `./api/${date}.json`
-  const words = data.map(o => ({
+  const date = dayjs().format('YYYY-MM-DD');
+  const fullPath = `./api/${date}.json`;
+  const words = data.map((o) => ({
     title: o.desc,
     category: o.category,
     description: o.description,
     url: o.scheme,
     hot: o.desc_extr,
-    ads: !!o.promotion
-  }))
-  let wordsAlreadyDownload = []
+    ads: !!o.promotion,
+  }));
+  let wordsAlreadyDownload = [];
   try {
-    await fs.stat(fullPath)
-    const content = await fs.readFile(fullPath)
-    wordsAlreadyDownload = JSON.parse(content)
+    await fs.stat(fullPath);
+    const content = await fs.readFile(fullPath);
+    wordsAlreadyDownload = JSON.parse(content);
   } catch (err) {
     // file not exsit
   }
-  const allHots = _.uniqBy(_.concat(words, wordsAlreadyDownload), 'title')
-  await fs.writeFile(fullPath, JSON.stringify(allHots))
+  const allHots = _.uniqBy(_.concat(words, wordsAlreadyDownload), 'title');
+  await fs.writeFile(fullPath, JSON.stringify(allHots));
 }
 
 async function writeMDFile() {
-  const date = dayjs().format('YYYY-MM-DD')
-  const fullPath = `./archives/${date}.md`
-  const jsonPath = `./api/${date}.json`
-  const words = await fs.readJSON(jsonPath)
-  await fs.writeFile(fullPath, `# ${date} 微博热搜 \n`)
-  await fs.writeFile(fullPath, words.map((item, index) => {
-    return `${index + 1}. [${item.title}](${item.url}) ${item.category ? `\`${item.category?.trim()}\`` : ''} \n`
-  }).join('\n'), {
-    flag: 'a'
-  })
+  const date = dayjs().format('YYYY-MM-DD');
+  const fullPath = `./archives/${date}.md`;
+  const jsonPath = `./api/${date}.json`;
+  const words = await fs.readJSON(jsonPath);
+  await fs.writeFile(fullPath, `# ${date} 微博热搜 \n`);
+  await fs.writeFile(
+    fullPath,
+    words
+      .map((item, index) => {
+        return `${index + 1}. [${item.title}](${item.url}) ${
+          item.category ? `\`${item.category?.trim()}\`` : ''
+        } \n`;
+      })
+      .join('\n'),
+    {
+      flag: 'a',
+    },
+  );
 }
 
 async function sendTgMessage(data) {
-  const ranks = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
+  const ranks = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
   const text = data.splice(1, 30).map((o, i) => {
-    const containerid = encodeURIComponent(new URL(o.scheme).searchParams.get('containerid'))
-    const url = `https://m.weibo.cn/search?containerid=${containerid}`
+    const containerid = encodeURIComponent(
+      new URL(o.scheme).searchParams.get('containerid'),
+    );
+    const url = `https://m.weibo.cn/search?containerid=${containerid}`;
     if (o.promotion) {
-      return `💰 [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`
+      return `💰 [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`;
     }
     if (ranks[i]) {
-      return `${ranks[i]} [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`
+      return `${ranks[i]} [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(
+        2,
+      )} 万`;
     }
-    return `🔥 [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`
-  })
-  text.unshift(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 的微博热搜([查看更多](https://weibo.xiadd.me/#/hots?date=${dayjs().format('YYYY-MM-DD')}))`)
+    return `🔥 [${o.desc}](${url}) ${(o.desc_extr / 10000).toFixed(2)} 万`;
+  });
+  text.unshift(
+    `${dayjs().format(
+      'YYYY-MM-DD HH:mm:ss',
+    )} 的微博热搜([查看更多](https://weibo.xiadd.me/#/hots?date=${dayjs().format(
+      'YYYY-MM-DD',
+    )}))`,
+  );
   await bot.telegram.sendMessage(CHANNEL_ID, text.join('\n'), {
     parse_mode: 'Markdown',
-    disable_web_page_preview: true
-  })
+    disable_web_page_preview: true,
+  });
 }
 
 async function fetchTrendingDetail(title) {
   try {
-    const { data } = await axios.get(util.format(TRENDING_DETAIL_URL, title), { timeout: 10 * 1000 })
-    const $ = cheerio.load(data)
+    const res = await fetch(util.format(TRENDING_DETAIL_URL, title));
+    const data = await res.text();
+    const $ = cheerio.load(data);
     return {
       category: $('#pl_topicband dl>dd').first().text(),
-      desc: $('#pl_topicband dl:eq(1)').find('dd:not(.host-row)').last().text()
-    }
+      desc: $('#pl_topicband dl:eq(1)').find('dd:not(.host-row)').last().text(),
+    };
   } catch {
-    return {}
+    return {};
   }
 }
 
 async function bootstrap() {
   while (RETRY_TIME > 0) {
     try {
-      const { data } = await axios.get(TRENDING_URL, { timeout: 10 * 1000 })
+      const res = await fetch(TRENDING_URL);
+      const data = res.json();
       if (data.ok === 1) {
-        const items = data.data.cards[0]?.card_group
+        const items = data.data.cards[0]?.card_group;
         if (items) {
           for (let item of items) {
-            const { category, desc } = await fetchTrendingDetail(encodeURIComponent(item.desc))
-            item.category = category || item.category
-            item.description = desc || item.description
+            const { category, desc } = await fetchTrendingDetail(
+              encodeURIComponent(item.desc),
+            );
+            item.category = category || item.category;
+            item.description = desc || item.description;
           }
-          await saveRawJson(items)
-          await writeMDFile()
-          await sendTgMessage(items)
+          await saveRawJson(items);
+          await writeMDFile();
+          await sendTgMessage(items);
         }
       }
-      RETRY_TIME = 0
+      RETRY_TIME = 0;
     } catch (err) {
-      console.log(err.message)
-      RETRY_TIME -= 1
+      console.log(err);
+      RETRY_TIME -= 1;
     }
   }
-  process.exit(0)
+  process.exit(0);
 }
 
-bootstrap()
+bootstrap();

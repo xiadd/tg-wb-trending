@@ -109,7 +109,7 @@ async function bootstrap() {
   while (RETRY_TIME > 0) {
     try {
       const res = await fetch(TRENDING_URL);
-      const data = res.json();
+      const data = await res.json();
       if (data.ok === 1) {
         const items = data.data.cards[0]?.card_group;
         if (items) {

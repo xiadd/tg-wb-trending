@@ -51,12 +51,22 @@ export default async function Hots({ params: { date } }: any) {
           </MenubarMenu>
 
           <MenubarMenu>
-            <Link
-              href={`/hots/${dayjs(date).add(1, 'day').format('YYYY-MM-DD')}`}
-            >
-              <MenubarTrigger className="cursor-pointer">后一天</MenubarTrigger>
-            </Link>
+            <MenubarTrigger className="cursor-pointer">{`${date} 共计 ${data.length} 条热搜`}</MenubarTrigger>
           </MenubarMenu>
+
+          {!dayjs(date).isSame(dayjs().startOf('day')) ? (
+            <MenubarMenu>
+              <Link
+                href={`/hots/${dayjs(date).add(1, 'day').format('YYYY-MM-DD')}`}
+              >
+                <MenubarTrigger className="cursor-pointer">
+                  后一天
+                </MenubarTrigger>
+              </Link>
+            </MenubarMenu>
+          ) : (
+            <span></span>
+          )}
         </Menubar>
       </div>
 

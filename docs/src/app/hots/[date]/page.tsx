@@ -79,11 +79,13 @@ export default async function Hots({ params: { date } }: any) {
             rel="noreferrer"
             className="block w-full cursor-pointer p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
           >
-            <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+            <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white flex flex-col justify-center md:justify-start md:flex-row md:items-center gap-2">
               {item.title}{' '}
-              {item.category && <Badge>{item.category.trim()}</Badge>}
-              {item.ads && <Badge variant="destructive">推广</Badge>}
-              {item.hot && <Badge variant="outline">🔥 {item.hot}</Badge>}
+              <div className="flex gap-2 items-center">
+                {item.category && <Badge>{item.category.trim()}</Badge>}
+                {item.ads && <Badge variant="destructive">推广</Badge>}
+                {item.hot && <Badge variant="outline">🔥 {item.hot}</Badge>}
+              </div>
             </h5>
             <p className="font-normal text-gray-700 dark:text-gray-400">
               {item.description || '没有描述'}
